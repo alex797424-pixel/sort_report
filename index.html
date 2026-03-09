@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>氣泡排序</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>氣泡排序</h1>
+    <p>輸入數字（以逗號分隔）：</p>
+    <input type="text" id="numbers" placeholder="例如：5,3,8,6,2">
+    <button onclick="sortNumbers()">排序</button>
+    <h2>排序結果：</h2>
+    <p id="result"></p>
+
+    <script>
+        function bubbleSort(arr) {
+            let n = arr.length;
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    if (arr[j] > arr[j + 1]) {
+                        // 交換元素
+                        let temp = arr[j];
+                        arr[j] = arr[j + 1];
+                        arr[j + 1] = temp;
+                    }
+                }
+            }
+            return arr;
+        }
+
+        function sortNumbers() {
+            const input = document.getElementById('numbers').value;
+            const numArray = input.split(',').map(Number); // 將輸入轉換為數字陣列
+            if (numArray.some(isNaN)) {
+                document.getElementById('result').textContent = '請輸入有效的數字！';
+                return;
+            }
+            const sortedArray = bubbleSort(numArray);
+            document.getElementById('result').textContent = sortedArray.join(', ');
+        }
+    </script>
+</body>
+</html>
