@@ -1,0 +1,89 @@
+
+</html><!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>插入排序法（動畫效果）</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, button {
+            margin: 10px 0;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            margin-top: 20px;
+            height: 200px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .bar {
+            width: 30px;
+            background-color: #007bff;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>插入排序法（動畫效果）</h1>
+    <p>請輸入數字陣列（以逗號分隔，例如：5,3,8,6,2）：</p>
+    <input type="text" id="arrayInput" placeholder="輸入數字陣列">
+    <button onclick="performInsertionSort()">排序</button>
+    <div class="bars" id="bars"></div>
+    <div class="result" id="result"></div>
+
+    <script>
+        function createBars(array) {
+            const barsContainer = document.getElementById('bars');
+            barsContainer.innerHTML = ''; // 清空條狀圖
+            array.forEach(value => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = `${value * 10}px`; // 高度與數值成比例
+                bar.innerText = value;
+                barsContainer.appendChild(bar);
+            });
+        }
+
+        async function performInsertionSort() {
+            const input = document.getElementById('arrayInput').value;
+            const array = input.split(',').map(Number);
+
+            createBars(array); // 初始化條狀圖
+
+            for (let i = 1; i < array.length; i++) {
+                let key = array[i];
+                let j = i - 1;
+
+                while (j >= 0 && array[j] > key) {
+                    array[j + 1] = array[j];
+                    j = j - 1;
+
+                    createBars(array); // 更新條狀圖
+                    await delay(500); // 延遲 500 毫秒
+                }
+                array[j + 1] = key;
+
+                createBars(array); // 更新條狀圖
+                await delay(500); // 延遲 500 毫秒
+            }
+
+            document.getElementById('result').innerText = `排序結果：${array.join(', ')}`;
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
