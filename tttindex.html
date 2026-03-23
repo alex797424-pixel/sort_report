@@ -1,5 +1,5 @@
 
-</html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-tw">
 <head>
     <meta charset="UTF-8">
@@ -32,6 +32,7 @@
             text-align: center;
             color: white;
             font-size: 14px;
+            transition: height 0.5s, background-color 0.5s;
         }
     </style>
 </head>
@@ -62,20 +63,30 @@
 
             createBars(array); // 初始化條狀圖
 
+            const bars = document.getElementsByClassName('bar');
+
             for (let i = 1; i < array.length; i++) {
                 let key = array[i];
                 let j = i - 1;
 
+                bars[i].style.backgroundColor = 'red'; // 高亮當前元素
+
                 while (j >= 0 && array[j] > key) {
                     array[j + 1] = array[j];
+                    bars[j + 1].style.height = `${array[j] * 10}px`;
+                    bars[j + 1].innerText = array[j];
+                    bars[j + 1].style.backgroundColor = 'yellow'; // 高亮移動的元素
+
                     j = j - 1;
 
-                    createBars(array); // 更新條狀圖
                     await delay(500); // 延遲 500 毫秒
                 }
-                array[j + 1] = key;
 
-                createBars(array); // 更新條狀圖
+                array[j + 1] = key;
+                bars[j + 1].style.height = `${key * 10}px`;
+                bars[j + 1].innerText = key;
+
+                bars[i].style.backgroundColor = '#007bff'; // 恢復顏色
                 await delay(500); // 延遲 500 毫秒
             }
 
@@ -87,3 +98,4 @@
         }
     </script>
 </body>
+</html>
