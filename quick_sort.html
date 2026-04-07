@@ -1,37 +1,78 @@
-<script>
-    async function partition(l, r) {
-        let bars = document.getElementsByClassName('bar');
-        let pivot = arr[r];
-        let i = l - 1;
-        bars[r].classList.add('active');
-        for (let j = l; j < r; j++) {
-            if (arr[j] < pivot) {
-                i++;
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-                bars[i].style.height = arr[i] + 'px';
-                bars[j].style.height = arr[j] + 'px';
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: sans-serif; margin: 10px; background: #fff; }
+        .canvas { display: flex; align-items: flex-end; justify-content: center; height: 160px; gap: 4px; background: #2c3e50; padding: 10px; border-radius: 8px; }
+        .bar { background: #3498db; width: 15px; transition: 0.1s; }
+        .active { background: #e74c3c !important; }
+        .pivot { background: #f1c40f !important; } /* 基準點設為黃色 */
+        .done { background: #2ecc71 !important; }
+    </style>
+</head>
+<body>
+    <div class="canvas" id="canvas"></div>
+    <div style="text-align:center; margin-top:10px;">
+        <button onclick="init()">重置</button>
+        <button onclick="startSort()">開始快速排序</button>
+    </div>
+    <script>
+        let arr = [];
+        const size = 20;
+        function init() {
+            arr = Array.from({length: size}, () => Math.floor(Math.random() * 120) + 20);
+            const c = document.getElementById('canvas');
+            c.innerHTML = '';
+            arr.forEach(v => {
+                const b = document.createElement('div');
+                b.className = 'bar'; b.style.height = v + 'px';
+                c.appendChild(b);
+            });
+        }
+
+        async function partition(l, r) {
+            let bars = document.getElementsByClassName('bar');
+            let pivot = arr[r];
+            bars[r].classList.add('pivot'); // 標記 Pivot
+            let i = l - 1;
+
+            for (let j = l; j < r; j++) {
+                bars[j].classList.add('active');
                 await new Promise(res => setTimeout(res, 50));
+                if (arr[j] < pivot) {
+                    i++;
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                    bars[i].style.height = arr[i] + 'px';
+                    bars[j].style.height = arr[j] + 'px';
+                }
+                bars[j].classList.remove('active');
+            }
+            [arr[i + 1], arr[r]] = [arr[r], arr[i + 1]];
+            bars[i + 1].style.height = arr[i + 1] + 'px';
+            bars[r].style.height = arr[r] + 'px';
+            bars[r].classList.remove('pivot');
+            bars[i + 1].classList.add('done');
+            return i + 1;
+        }
+
+        async function quickSort(l, r) {
+            if (l < r) {
+                let pi = await partition(l, r);
+                await quickSort(l, pi - 1);
+                await quickSort(pi + 1, r);
+            } else if (l === r) {
+                document.getElementsByClassName('bar')[l].classList.add('done');
             }
         }
-        [arr[i + 1], arr[r]] = [arr[r], arr[i + 1]];
-        bars[i + 1].style.height = arr[i + 1] + 'px';
-        bars[r].style.height = arr[r] + 'px';
-        bars[r].classList.remove('active');
-        bars[i + 1].classList.add('done');
-        return i + 1;
-    }
 
-    async function sortRecursive(l, r) {
-        if (l < r) {
-            let pi = await partition(l, r);
-            await sortRecursive(l, pi - 1);
-            await sortRecursive(pi + 1, r);
-        } else if (l === r) {
-            document.getElementsByClassName('bar')[l].classList.add('done');
+        async function startSort() {
+            await quickSort(0, size - 1);
+            // 最後全部刷綠
+            let bars = document.getElementsByClassName('bar');
+            for(let b of bars) b.classList.add('done');
         }
-    }
-
-    async function sort() {
-        await sortRecursive(0, size - 1);
-    }
-</script>
+        init();
+    </script>
+</body>
+</html>
