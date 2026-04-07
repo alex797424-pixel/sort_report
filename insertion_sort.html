@@ -18,6 +18,7 @@
     <script>
         let arr = [];
         const size = 20;
+
         function init() {
             arr = Array.from({length: size}, () => Math.floor(Math.random() * 120) + 20);
             const c = document.getElementById('canvas');
@@ -28,32 +29,49 @@
                 c.appendChild(b);
             });
         }
+
         async function sort() {
             let bars = document.getElementsByClassName('bar');
-            bars[0].classList.add('done');
-            for(let i=1; i<size; i++) {
+            
+            // 插入排序從第二個元素開始 (index 1)
+            for (let i = 1; i < size; i++) {
                 let key = arr[i];
                 let j = i - 1;
+
+                // 標記目前正在處理的元素
                 bars[i].classList.add('active');
                 await new Promise(r => setTimeout(r, 100));
 
-                while(j >= 0 && arr[j] > key) {
+                // 將大於 key 的元素向右移動
+                while (j >= 0 && arr[j] > key) {
+                    // 標記正在比較的左側元素
                     bars[j].classList.add('active');
+                    
+                    arr[j + 1] = arr[j];
+                    // 關鍵：同步更新畫面上長條圖的高度
+                    bars[j + 1].style.height = arr[j] + 'px';
+                    
                     await new Promise(r => setTimeout(r, 50));
-                    arr[j+1] = arr[j];
-                    bars[j+1].style.height = arr[j+1] + 'px';
+                    
+                    // 移除顏色並標記為已處理
                     bars[j].classList.remove('active');
-                    bars[j+1].classList.add('done');
-                    j--;
+                    bars[j + 1].classList.add('done');
+                    
+                    j = j - 1;
                 }
-                arr[j+1] = key;
-                bars[j+1].style.height = arr[j+1] + 'px';
-                bars[i].classList.remove('active');
                 
-                // 確保排序好的區域顏色一致
-                for(let k=0; k<=i; k++) bars[k].classList.add('done');
+                // 將 key 放到正確的位置
+                arr[j + 1] = key;
+                bars[j + 1].style.height = key + 'px';
+                
+                // 標記當前處理完的元素為完成顏色
+                bars[i].classList.remove('active');
+                for(let k = 0; k <= i; k++) {
+                    bars[k].classList.add('done');
+                }
             }
         }
+
         init();
     </script>
 </body>
