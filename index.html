@@ -3,37 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>排序演算法分析報告 - Jia-Yin</title>
+    <title>排序演算法分析報告 - 簡睿言</title>
     <style>
-        :root { --primary: #3498db; --secondary: #2c3e50; --success: #2ecc71; --danger: #e74c3c; --bg: #f8f9fa; }
+        :root { --primary: #3498db; --secondary: #2c3e50; --success: #2ecc71; --danger: #e74c3c; --bg: #f0f2f5; }
         body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; line-height: 1.6; color: var(--secondary); background: var(--bg); margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         
-        /* Header Section */
+        /* 標題與資訊區 */
         .header { border-bottom: 3px solid var(--primary); margin-bottom: 30px; padding-bottom: 10px; }
-        .info-box { background: #eef2f7; padding: 15px; border-left: 5px solid var(--primary); margin: 20px 0; border-radius: 4px; }
+        .info-box { background: #eef2f7; padding: 20px; border-left: 5px solid var(--primary); margin: 20px 0; border-radius: 4px; line-height: 2; }
         
-        /* Section Styling */
-        .sort-section { margin-bottom: 50px; padding: 25px; border: 1px solid #eee; border-radius: 8px; transition: 0.3s; }
-        .sort-section:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        h2 { color: var(--primary); display: flex; align-items: center; }
-        .complexity-tag { font-size: 0.8em; background: var(--secondary); color: white; padding: 3px 10px; border-radius: 20px; margin-left: 15px; }
+        /* 章節樣式 */
+        .sort-section { margin-bottom: 40px; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
+        h2 { color: var(--primary); border-left: 5px solid var(--primary); padding-left: 15px; margin-top: 0; }
+        .tag { font-size: 0.8em; background: var(--secondary); color: white; padding: 2px 8px; border-radius: 4px; margin-left: 10px; }
         
-        /* Visualizer Styling */
-        .visualizer { background: #2c3e50; padding: 20px; border-radius: 8px; margin-top: 15px; text-align: center; }
-        .canvas { display: flex; align-items: flex-end; justify-content: center; height: 180px; gap: 3px; background: #34495e; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
-        .bar { background: var(--primary); width: 12px; transition: 0.1s; }
+        /* 動畫畫布 */
+        .visualizer { background: #2c3e50; padding: 20px; border-radius: 8px; margin: 15px 0; }
+        .canvas { display: flex; align-items: flex-end; justify-content: center; height: 150px; gap: 4px; background: #34495e; padding: 10px; border-radius: 4px; }
+        .bar { background: var(--primary); width: 15px; transition: 0.1s; }
         .bar.comparing { background: var(--danger); }
         .bar.sorted { background: var(--success); }
         
-        /* Controls */
-        .controls { display: flex; justify-content: center; gap: 10px; }
-        button { padding: 8px 18px; cursor: pointer; border: none; border-radius: 4px; background: var(--primary); color: white; transition: 0.3s; }
+        /* 按鈕控制 */
+        .controls { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+        button { padding: 8px 20px; cursor: pointer; border: none; border-radius: 4px; background: var(--primary); color: white; font-weight: bold; transition: 0.3s; }
         button:hover { background: #2980b9; }
         button:disabled { background: #bdc3c7; cursor: not-allowed; }
 
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
         th { background: var(--primary); color: white; }
     </style>
 </head>
@@ -43,77 +42,77 @@
     <div class="header">
         <h1>排序演算法分析報告</h1>
         <div class="info-box">
-            <strong>學號：</strong> XXXXXXX <br>
-            <strong>姓名：</strong> Jia-Yin <br>
-            <strong>模擬頁面：</strong> <a href="https://jia-yin.github.io/sort_report/">https://jia-yin.github.io/sort_report/</a>
+            <strong>學號：</strong> 11428114 <br>
+            <strong>姓名：</strong> 簡睿言 <br>
+            <strong>模擬頁面：</strong> <a href="https://alex797424-pixel.github.io/sort_report/" target="_blank">https://alex797424-pixel.github.io/sort_report/</a>
         </div>
     </div>
 
-    <div class="sort-section" id="bubble">
-        <h2>1. 氣泡排序法 <span class="complexity-tag">O(n²)</span></h2>
-        <p><strong>原理：</strong> 重複遍歷數列，比較相鄰元素並交換順序錯誤者。每一輪會將目前最大的元素移動到最右端。</p>
+    <div class="sort-section">
+        <h2>氣泡排序法 (Bubble Sort) <span class="tag">O(n²)</span></h2>
+        <p><strong>原理：</strong> 重複比較相鄰元素，若順序錯誤則交換，每一輪讓最大值像氣泡一樣「浮」到最右端。</p>
         <div class="visualizer">
             <div class="canvas" id="canvas-bubble"></div>
             <div class="controls">
-                <button onclick="reset('bubble')">重置</button>
-                <button id="btn-bubble" onclick="runBubble()">開始演示</button>
+                <button onclick="reset('bubble')">重置數據</button>
+                <button onclick="runBubble()">開始演示</button>
             </div>
         </div>
     </div>
 
-    <div class="sort-section" id="selection">
-        <h2>2. 選擇排序法 <span class="complexity-tag">O(n²)</span></h2>
-        <p><strong>原理：</strong> 在未排序序列中找到最小元素，存放到排序序列的起始位置，再從剩餘未排序元素中繼續尋找。</p>
+    <div class="sort-section">
+        <h2>選擇排序法 (Selection Sort) <span class="tag">O(n²)</span></h2>
+        <p><strong>原理：</strong> 從未排序區中找出最小值，與未排序區的第一個元素交換位置，固定排序。</p>
         <div class="visualizer">
             <div class="canvas" id="canvas-selection"></div>
             <div class="controls">
-                <button onclick="reset('selection')">重置</button>
-                <button id="btn-selection" onclick="runSelection()">開始演示</button>
+                <button onclick="reset('selection')">重置數據</button>
+                <button onclick="runSelection()">開始演示</button>
             </div>
         </div>
     </div>
 
-    <div class="sort-section" id="insertion">
-        <h2>3. 插入排序法 <span class="complexity-tag">O(n²)</span></h2>
-        <p><strong>原理：</strong> 將第一元素視為已排序，從第二元素起，在已排序序列中從後向前掃描，找到相應位置並插入。</p>
+    <div class="sort-section">
+        <h2>插入排序法 (Insertion Sort) <span class="tag">O(n²)</span></h2>
+        <p><strong>原理：</strong> 逐一取出未排序元素，從後往前掃描已排序區，將其插入到正確的相對位置。</p>
         <div class="visualizer">
             <div class="canvas" id="canvas-insertion"></div>
             <div class="controls">
-                <button onclick="reset('insertion')">重置</button>
-                <button id="btn-insertion" onclick="runInsertion()">開始演示</button>
+                <button onclick="reset('insertion')">重置數據</button>
+                <button onclick="runInsertion()">開始演示</button>
             </div>
         </div>
     </div>
 
-    <div class="sort-section" id="merge">
-        <h2>4. 合併排序法 <span class="complexity-tag">O(n log n)</span></h2>
-        <p><strong>原理：</strong> 採用分治法。將長度為 n 的序列分成兩個長度為 n/2 的子序列，分別排序後再合併成一個有序序列。</p>
+    <div class="sort-section">
+        <h2>合併排序法 (Merge Sort) <span class="tag">O(n log n)</span></h2>
+        <p><strong>原理：</strong> 採用分治法，將資料對半切開直到最細單位，再進行兩兩合併並保持有序。</p>
         <div class="visualizer">
             <div class="canvas" id="canvas-merge"></div>
             <div class="controls">
-                <button onclick="reset('merge')">重置</button>
-                <button id="btn-merge" onclick="runMerge()">開始演示</button>
+                <button onclick="reset('merge')">重置數據</button>
+                <button onclick="runMerge()">開始演示</button>
             </div>
         </div>
     </div>
 
-    <div class="sort-section" id="quick">
-        <h2>5. 快速排序法 <span class="complexity-tag">O(n log n)</span></h2>
-        <p><strong>原理：</strong> 選取基準值 (Pivot)，將序列分為兩部分：一部分比基準小，另一部分比基準大，再遞迴進行排序。</p>
+    <div class="sort-section">
+        <h2>快速排序法 (Quick Sort) <span class="tag">O(n log n)</span></h2>
+        <p><strong>原理：</strong> 選定基準點（Pivot），將資料分為大於與小於基準點兩堆，再遞迴處理子數列。</p>
         <div class="visualizer">
             <div class="canvas" id="canvas-quick"></div>
             <div class="controls">
-                <button onclick="reset('quick')">重置</button>
-                <button id="btn-quick" onclick="runQuick()">開始演示</button>
+                <button onclick="reset('quick')">重置數據</button>
+                <button onclick="runQuick()">開始演示</button>
             </div>
         </div>
     </div>
 
     <div class="header">
-        <h2>六、 綜合比較</h2>
+        <h2>綜合比較分析</h2>
         <table>
             <thead>
-                <tr><th>排序法</th><th>平均時間</th><th>空間複雜度</th><th>穩定性</th></tr>
+                <tr><th>排序法</th><th>平均時間複雜度</th><th>空間複雜度</th><th>穩定性</th></tr>
             </thead>
             <tbody>
                 <tr><td>氣泡排序</td><td>O(n²)</td><td>O(1)</td><td>穩定</td></tr>
@@ -125,25 +124,25 @@
         </table>
     </div>
 
-    <div class="header">
-        <h2>七、 學習心得</h2>
-        <p>透過實作這五種動畫，我直觀地觀察到分治法（合併與快速排序）在大量數據下的優勢。氣泡排序與選擇排序雖然邏輯簡單，但頻繁的交換與掃描使其在效能上顯得力不從心。這讓我體會到，在不同場景下靈活選用演算法是工程師最重要的技能之一。</p>
+    <div class="sort-section" style="border: none; background: #fff9db;">
+        <h2>學習心得</h2>
+        <p>透過實作五種演算法的動態模擬，我清楚看到了不同複雜度帶來的效能落差。氣泡與選擇排序在處理大規模數據時效率明顯不足，而快速排序與合併排序展現了分治法的強大威力。這次實驗讓我學會如何依據資料量與需求（如穩定性）來選擇最適當的排序方案。</p>
     </div>
 </div>
 
 <script>
-    const ARRAY_SIZE = 25;
-    let data = {};
+    const ARRAY_SIZE = 20;
+    let arrays = {};
 
     function reset(type) {
-        data[type] = Array.from({length: ARRAY_SIZE}, () => Math.floor(Math.random() * 150) + 20);
+        arrays[type] = Array.from({length: ARRAY_SIZE}, () => Math.floor(Math.random() * 120) + 20);
         render(type);
     }
 
     function render(type) {
         const canvas = document.getElementById(`canvas-${type}`);
         canvas.innerHTML = '';
-        data[type].forEach(val => {
+        arrays[type].forEach(val => {
             const bar = document.createElement('div');
             bar.className = 'bar';
             bar.style.height = `${val}px`;
@@ -153,71 +152,81 @@
 
     async function swap(type, i, j) {
         let bars = document.getElementById(`canvas-${type}`).children;
-        [data[type][i], data[type][j]] = [data[type][j], data[type][i]];
-        bars[i].style.height = `${data[type][i]}px`;
-        bars[j].style.height = `${data[type][j]}px`;
+        [arrays[type][i], arrays[type][j]] = [arrays[type][j], arrays[type][i]];
+        bars[i].style.height = `${arrays[type][i]}px`;
+        bars[j].style.height = `${arrays[type][j]}px`;
         bars[i].classList.add('comparing');
         bars[j].classList.add('comparing');
-        await new Promise(r => setTimeout(r, 40));
+        await new Promise(r => setTimeout(r, 60));
         bars[i].classList.remove('comparing');
         bars[j].classList.remove('comparing');
     }
 
-    // --- 各排序實作 ---
     async function runBubble() {
-        const bars = document.getElementById('canvas-bubble').children;
+        const type = 'bubble';
+        const bars = document.getElementById(`canvas-${type}`).children;
         for(let i=0; i<ARRAY_SIZE; i++) {
             for(let j=0; j<ARRAY_SIZE-i-1; j++) {
-                if(data['bubble'][j] > data['bubble'][j+1]) await swap('bubble', j, j+1);
+                if(arrays[type][j] > arrays[type][j+1]) await swap(type, j, j+1);
             }
             bars[ARRAY_SIZE-i-1].classList.add('sorted');
         }
     }
 
     async function runSelection() {
-        const bars = document.getElementById('canvas-selection').children;
+        const type = 'selection';
+        const bars = document.getElementById(`canvas-${type}`).children;
         for(let i=0; i<ARRAY_SIZE; i++) {
             let min = i;
             for(let j=i+1; j<ARRAY_SIZE; j++) {
-                if(data['selection'][j] < data['selection'][min]) min = j;
+                if(arrays[type][j] < arrays[type][min]) min = j;
             }
-            await swap('selection', i, min);
+            await swap(type, i, min);
             bars[i].classList.add('sorted');
         }
     }
 
     async function runInsertion() {
-        const bars = document.getElementById('canvas-insertion').children;
+        const type = 'insertion';
+        const bars = document.getElementById(`canvas-${type}`).children;
         for(let i=1; i<ARRAY_SIZE; i++) {
             let j = i;
-            while(j > 0 && data['insertion'][j] < data['insertion'][j-1]) {
-                await swap('insertion', j, j-1);
+            while(j > 0 && arrays[type][j] < arrays[type][j-1]) {
+                await swap(type, j, j-1);
                 j--;
             }
             for(let k=0; k<=i; k++) bars[k].classList.add('sorted');
         }
     }
 
-    // 合併與快速排序為了精簡與演示一致，採同樣視覺邏輯
-    async function runMerge() { alert("合併排序演示：將遞迴分解至最小單位再進行有序合併。"); }
-    async function runQuick() { 
-        const bars = document.getElementById('canvas-quick').children;
+    async function runMerge() {
+        alert("合併排序動畫演示：分治合併過程較複雜，將跳過細節展示排序結果。");
+        arrays['merge'].sort((a,b)=>a-b);
+        render('merge');
+        const bars = document.getElementById('canvas-merge').children;
+        for(let b of bars) b.classList.add('sorted');
+    }
+
+    async function runQuick() {
+        const type = 'quick';
+        const bars = document.getElementById(`canvas-${type}`).children;
         async function qSort(l, r) {
             if(l >= r) return;
-            let pivot = data['quick'][r];
+            let pivot = arrays[type][r];
             let i = l;
             for(let j=l; j<r; j++) {
-                if(data['quick'][j] < pivot) { await swap('quick', i, j); i++; }
+                if(arrays[type][j] < pivot) { await swap(type, i, j); i++; }
             }
-            await swap('quick', i, r);
+            await swap(type, i, r);
             bars[i].classList.add('sorted');
             await qSort(l, i-1);
             await qSort(i+1, r);
         }
         await qSort(0, ARRAY_SIZE-1);
-        for(let k=0; k<ARRAY_SIZE; k++) bars[k].classList.add('sorted');
+        for(let b of bars) b.classList.add('sorted');
     }
 
+    // 初始化
     ['bubble', 'selection', 'insertion', 'merge', 'quick'].forEach(reset);
 </script>
 
