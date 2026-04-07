@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: sans-serif; text-align: center; }
-        .canvas { display: flex; align-items: flex-end; justify-content: center; height: 200px; gap: 4px; background: #2c3e50; padding: 20px; border-radius: 8px; }
-        .bar { background: #3498db; width: 20px; transition: 0.2s; }
+        body { font-family: sans-serif; text-align: center; background: white; margin: 0; padding: 10px; }
+        .canvas { display: flex; align-items: flex-end; justify-content: center; height: 160px; gap: 4px; background: #2c3e50; padding: 10px; border-radius: 8px; }
+        .bar { background: #3498db; width: 15px; transition: 0.1s; }
         .active { background: #e74c3c !important; }
         .done { background: #2ecc71 !important; }
     </style>
 </head>
 <body>
-    <h3>🎯 選擇排序 (Selection Sort)</h3>
     <div class="canvas" id="canvas"></div>
-    <p><button onclick="init()">重置</button> <button onclick="sort()">開始排序</button></p>
+    <div style="margin-top:10px;">
+        <button onclick="init()">重置</button>
+        <button onclick="sort()">開始選擇排序</button>
+    </div>
     <script>
         let arr = []; const size = 20;
         function init() {
-            arr = Array.from({length: size}, () => Math.floor(Math.random() * 150) + 20);
+            arr = Array.from({length: size}, () => Math.floor(Math.random() * 120) + 20);
             const c = document.getElementById('canvas'); c.innerHTML = '';
             arr.forEach(v => {
                 const b = document.createElement('div'); b.className = 'bar';
@@ -35,7 +37,7 @@
                 bars[i].classList.remove('active'); bars[i].classList.add('done');
             }
         }
-        init();
+        init(); // 網頁開啟時先執行初始化
     </script>
 </body>
 </html>
