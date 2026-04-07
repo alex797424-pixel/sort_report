@@ -1,47 +1,249 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-tw">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合併排序法 (Merge Sort) 原理與操作</title>
     <style>
-        body { font-family: sans-serif; text-align: center; }
-        .canvas { display: flex; align-items: flex-end; justify-content: center; height: 200px; gap: 4px; background: #2c3e50; padding: 20px; border-radius: 8px; }
-        .bar { background: #3498db; width: 20px; }
-        .done { background: #2ecc71 !important; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1 { color: #27ae60; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .theory-box {
+            background-color: #f8f9fa;
+            border-left: 5px solid #27ae60;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        #visualization {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        #array-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 8px;
+            height: 250px;
+            margin: 20px 0;
+            border-bottom: 3px solid #34495e;
+            padding-bottom: 5px;
+        }
+        .bar {
+            width: 45px;
+            background-color: #3498db; /* 預設藍色 */
+            color: white;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 8px;
+            border-radius: 5px 5px 0 0;
+            transition: height 0.3s ease, background-color 0.3s ease;
+        }
+        
+        /* 狀態顏色 */
+        .bar.active { background-color: #f1c40f; }    /* 黃色：正在處理的區間 */
+        .bar.merging { background-color: #e74c3c; }   /* 紅色：正在進行比較並寫入的值 */
+        .bar.sorted { background-color: #2ecc71; }    /* 綠色：已完成合併排序 */
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #27ae60;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #219653; }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        
+        #status-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #27ae60;
+            min-height: 30px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <h3>✂️ 合併排序 (Merge Sort)</h3>
-    <div class="canvas" id="canvas"></div>
-    <p><button onclick="init()">重置</button> <button onclick="sort()">開始排序</button></p>
+
+    <h1>合併排序法 (Merge Sort)</h1>
+
+    <div class="theory-box">
+        <h3>💡 基本原理</h3>
+        <p>合併排序法採用「分而治之」的策略：</p>
+        <ol>
+            <li><strong>分割 (Divide)：</strong>將陣列不斷對半切分，直到每個子陣列只剩 1 個元素（此時視為已排序）。</li>
+            <li><strong>合併 (Conquer)：</strong>將兩個已經排序好的子陣列，透過比較大小，依序合併成一個較大的已排序陣列。</li>
+            <li>不斷重複合併的動作，直到最後組合成完整的陣列，排序即告完成。</li>
+        </ol>
+    </div>
+
+    <div id="visualization">
+        <div class="controls">
+            <button id="btn-generate">產生隨機陣列</button>
+            <button id="btn-sort">開始排序</button>
+        </div>
+        
+        <div id="status-text">點擊「開始排序」觀察運作過程</div>
+        
+        <div id="array-container"></div>
+    </div>
+
     <script>
-        let arr = []; const size = 20;
-        function init() {
-            arr = Array.from({length: size}, () => Math.floor(Math.random() * 150) + 20);
-            const c = document.getElementById('canvas'); c.innerHTML = '';
-            arr.forEach(v => {
-                const b = document.createElement('div'); b.className = 'bar';
-                b.style.height = v + 'px'; c.appendChild(b);
-            });
-        }
-        async function merge(l, m, r) {
-            let bars = document.getElementsByClassName('bar');
-            let left = arr.slice(l, m + 1); let right = arr.slice(m + 1, r + 1);
-            let i = 0, j = 0, k = l;
-            while (i < left.length && j < right.length) {
-                await new Promise(res => setTimeout(res, 50));
-                arr[k] = (left[i] <= right[j]) ? left[i++] : right[j++];
-                bars[k].style.height = arr[k] + 'px'; bars[k].classList.add('done'); k++;
+        let array = [];
+        const container = document.getElementById('array-container');
+        const statusText = document.getElementById('status-text');
+        const btnGenerate = document.getElementById('btn-generate');
+        const btnSort = document.getElementById('btn-sort');
+        const ARRAY_SIZE = 8; // 使用 2 的次方數 (如 8) 最能完美展示對半切的過程
+        const ANIMATION_SPEED = 600;
+
+        // 初始化陣列
+        function generateArray() {
+            array = [];
+            container.innerHTML = '';
+            statusText.textContent = '準備就緒！';
+            btnSort.disabled = false;
+
+            for (let i = 0; i < ARRAY_SIZE; i++) {
+                const value = Math.floor(Math.random() * 90) + 10;
+                array.push(value);
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${value * 2}px`;
+                bar.textContent = value;
+                container.appendChild(bar);
             }
-            while (i < left.length) { arr[k] = left[i++]; bars[k].style.height = arr[k] + 'px'; bars[k].classList.add('done'); k++; }
-            while (j < right.length) { arr[k] = right[j++]; bars[k].style.height = arr[k] + 'px'; bars[k].classList.add('done'); k++; }
         }
-        async function sortRec(l, r) {
-            if (l >= r) return;
-            let m = Math.floor((l + r) / 2);
-            await sortRec(l, m); await sortRec(m + 1, r); await merge(l, m, r);
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
-        async function sort() { await sortRec(0, size - 1); }
-        init();
+
+        // 合併兩個子陣列的邏輯與動畫
+        async function merge(arr, left, mid, right) {
+            const bars = document.querySelectorAll('.bar');
+            statusText.textContent = `準備合併索引 [${left} 到 ${mid}] 與 [${mid + 1} 到 ${right}]`;
+            
+            // 將準備合併的範圍標示為黃色
+            for (let i = left; i <= right; i++) {
+                bars[i].classList.add('active');
+            }
+            await sleep(ANIMATION_SPEED);
+
+            // 建立暫存陣列來進行合併
+            let leftArray = arr.slice(left, mid + 1);
+            let rightArray = arr.slice(mid + 1, right + 1);
+
+            let i = 0, j = 0, k = left;
+
+            // 比較左右兩邊，依序填回原陣列
+            while (i < leftArray.length && j < rightArray.length) {
+                // 標示正在比較的目標
+                bars[k].classList.add('merging');
+                
+                if (leftArray[i] <= rightArray[j]) {
+                    statusText.textContent = `${leftArray[i]} <= ${rightArray[j]}，將 ${leftArray[i]} 放回陣列`;
+                    arr[k] = leftArray[i];
+                    i++;
+                } else {
+                    statusText.textContent = `${leftArray[i]} > ${rightArray[j]}，將 ${rightArray[j]} 放回陣列`;
+                    arr[k] = rightArray[j];
+                    j++;
+                }
+                
+                // 更新畫面高度與數字
+                bars[k].style.height = `${arr[k] * 2}px`;
+                bars[k].textContent = arr[k];
+                await sleep(ANIMATION_SPEED);
+                bars[k].classList.remove('merging');
+                k++;
+            }
+
+            // 把左邊剩下的元素填完
+            while (i < leftArray.length) {
+                statusText.textContent = `將左側剩餘的 ${leftArray[i]} 放回陣列`;
+                bars[k].classList.add('merging');
+                arr[k] = leftArray[i];
+                bars[k].style.height = `${arr[k] * 2}px`;
+                bars[k].textContent = arr[k];
+                await sleep(ANIMATION_SPEED);
+                bars[k].classList.remove('merging');
+                i++;
+                k++;
+            }
+
+            // 把右邊剩下的元素填完
+            while (j < rightArray.length) {
+                statusText.textContent = `將右側剩餘的 ${rightArray[j]} 放回陣列`;
+                bars[k].classList.add('merging');
+                arr[k] = rightArray[j];
+                bars[k].style.height = `${arr[k] * 2}px`;
+                bars[k].textContent = arr[k];
+                await sleep(ANIMATION_SPEED);
+                bars[k].classList.remove('merging');
+                j++;
+                k++;
+            }
+
+            // 合併完成，移除黃色標記，若是最後一次大合併則加上綠色標記
+            for (let x = left; x <= right; x++) {
+                bars[x].classList.remove('active');
+                if (left === 0 && right === array.length - 1) {
+                    bars[x].classList.add('sorted');
+                }
+            }
+        }
+
+        // 遞迴呼叫的分割邏輯
+        async function mergeSortHelper(arr, left, right) {
+            if (left >= right) {
+                return;
+            }
+            const mid = left + Math.floor((right - left) / 2);
+            
+            statusText.textContent = `將區間拆分為 [${left} 到 ${mid}] 和 [${mid + 1} 到 ${right}]`;
+            await sleep(ANIMATION_SPEED);
+
+            await mergeSortHelper(arr, left, mid);
+            await mergeSortHelper(arr, mid + 1, right);
+            await merge(arr, left, mid, right);
+        }
+
+        // 啟動排序的主函式
+        async function startMergeSort() {
+            btnGenerate.disabled = true;
+            btnSort.disabled = true;
+            
+            await mergeSortHelper(array, 0, array.length - 1);
+            
+            statusText.textContent = '🎉 排序完成！';
+            btnGenerate.disabled = false;
+        }
+
+        btnGenerate.addEventListener('click', generateArray);
+        btnSort.addEventListener('click', startMergeSort);
+        window.onload = generateArray;
     </script>
 </body>
 </html>
