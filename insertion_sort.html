@@ -1,183 +1,21 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>插入排序模擬器</title>
-    <style>
-        /* 1. 統一整體背景色為白色 */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #ffffff; /* 白色背景 */
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* 水平居中 */
-        }
-
-        /* 2. 動畫畫布區域：深藍色背景，與氣泡排序一致 */
-        #data-container {
-            width: 100%;
-            max-width: 900px; /* 稍微加大一點寬度 */
-            height: 300px;    /* 固定高度 */
-            background-color: #2c3e50; /* 深藍色畫布背景 */
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end; /* 柱狀圖從底部長起 */
-            padding: 15px;
-            box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin-bottom: 25px; /* 與下方按鈕的間距 */
-        }
-
-        /* 3. 柱狀圖樣式：修正為與氣泡排序一致的藍色 */
-        .bar {
-            background-color: #3498db; /* 藍色 */
-            margin: 0 2px;
-            border-radius: 3px 3px 0 0;
-            transition: height 0.1s ease, background-color 0.1s ease; /* 加快動畫過渡 */
-        }
-
-        /* 正在被比較或選取的柱子：亮藍色 (或可維持原代碼的紅色以示區別) */
-        .bar.active {
-            background-color: #e74c3c; /* 為了區別，比較時仍用紅色 */
-        }
-
-        /* 已經定位好的柱子：恢復原本藍色 */
-        .bar.sorted {
-            background-color: #3498db;
-        }
-
-        /* 4. 控制按鈕區域：水瓶排列，置中 */
-        .controls {
-            display: flex;
-            gap: 15px; /* 按鈕間距 */
-            justify-content: center;
-        }
-
-        button {
-            padding: 12px 24px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #fff;
-            border: 1px solid #bdc3c7; /* 稍微深一點的邊框 */
-            border-radius: 6px;
-            color: #333;
-            transition: all 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        button:hover {
-            background-color: #f1f1f1;
-            border-color: #95a5a6;
-        }
-
-        button:disabled {
-            background-color: #f5f5f5;
-            color: #aaa;
-            cursor: not-allowed;
-            border-color: #eee;
-        }
-    </style>
-</head>
-<body>
-
-    <div id="data-container"></div>
-
-    <div class="controls">
-        <button onclick="resetArray()" id="resetBtn">重置</button>
-        <button onclick="insertionSort()" id="sortBtn">開始插入排序</button>
-    </div>
-
-    <script>
-        // 初始化畫布容器
-        const container = document.getElementById('data-container');
-        const sortBtn = document.getElementById('sortBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        
-        let array = [];
-        const ARRAY_SIZE = 30; // 稍微增加數量，使柱子看起來更密集，與氣泡排序相似
-        const MAX_HEIGHT = 280; // 配合容器高度
-
-        // 產生隨機陣列並渲染到畫面
-        function resetArray() {
-            array = [];
-            container.innerHTML = ''; // 清空畫布
-            
-            for (let i = 0; i < ARRAY_SIZE; i++) {
-                // 產生 20 ~ 280 之間的隨機高度
-                const value = Math.floor(Math.random() * (MAX_HEIGHT - 20)) + 20;
-                array.push(value);
-                
-                // 建立柱子元素
-                const bar = document.createElement('div');
-                bar.classList.add('bar');
-                bar.style.height = `${value}px`;
-                // 動態計算寬度以填滿容器，並留有間距
-                bar.style.width = `${(100 / ARRAY_SIZE) - 0.8}%`; 
-                bar.id = `bar-${i}`; // 賦予 ID 方便 JS 抓取
-                container.appendChild(bar);
+<script>
+    async function sort() {
+        let bars = document.getElementsByClassName('bar');
+        bars[0].classList.add('done');
+        for(let i=1; i<size; i++) {
+            let key = arr[i];
+            let j = i - 1;
+            bars[i].classList.add('active');
+            while(j >= 0 && arr[j] > key) {
+                await new Promise(r => setTimeout(r, 50));
+                arr[j+1] = arr[j];
+                bars[j+1].style.height = arr[j+1] + 'px';
+                j--;
             }
-            sortBtn.disabled = false;
+            arr[j+1] = key;
+            bars[j+1].style.height = key + 'px';
+            bars[i].classList.remove('active');
+            for(let k=0; k<=i; k++) bars[k].classList.add('done');
         }
-
-        // 輔助函式：等待一段時間 (控制動畫速度)
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        // 更新特定柱子的外觀：高度與顏色
-        function updateBar(index, value, colorClass = '') {
-            const bar = document.getElementById(`bar-${index}`);
-            if (bar) {
-                bar.style.height = `${value}px`;
-                // 先清除所有狀態，再賦予新狀態
-                bar.className = `bar ${colorClass}`;
-            }
-        }
-
-        // 插入排序核心邏輯 (含動畫)
-        async function insertionSort() {
-            sortBtn.disabled = true; // 排序開始時禁用按鈕
-            resetBtn.disabled = true;
-            
-            const bars = document.getElementsByClassName('bar');
-            
-            // 插入排序邏輯：從第二支柱子開始
-            for (let i = 1; i < array.length; i++) {
-                let key = array[i]; // 當前要插入的「牌」
-                let j = i - 1;       // 已排序區域的最後一個位置
-                
-                // 標記目前正在處理的 key (變紅色)
-                updateBar(i, key, 'active');
-                await sleep(50); // 動畫停頓 (速度可自行調整)
-
-                // 往前掃描，將大於 key 的元素右移
-                while (j >= 0 && array[j] > key) {
-                    array[j + 1] = array[j]; // 數值右移
-                    
-                    // 視覺化右移：把 j 的高度賦予 j+1，並維持紅色 (活動中)
-                    updateBar(j + 1, array[j], 'active');
-                    await sleep(50);
-                    
-                    j = j - 1;
-                }
-                
-                // 找到正確位置，將 key 插入
-                array[j + 1] = key;
-                // 插入後恢復成藍色，標記為 sorted 類別 (亦可維持原本 bar 的藍色)
-                updateBar(j + 1, key, 'sorted'); 
-                await sleep(50);
-            }
-            
-            // 排序全部完成
-            resetBtn.disabled = false; // 啟用重置按鈕
-        }
-
-        // 初始化：開啟頁面時先產生一組隨機陣列
-        resetArray();
-    </script>
-</body>
-</html>
+    }
+</script>
