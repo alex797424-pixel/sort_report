@@ -1,0 +1,43 @@
+<script>
+    async function merge(l, m, r) {
+        let bars = document.getElementsByClassName('bar');
+        let left = arr.slice(l, m + 1);
+        let right = arr.slice(m + 1, r + 1);
+        let i = 0, j = 0, k = l;
+        while (i < left.length && j < right.length) {
+            await new Promise(res => setTimeout(res, 50));
+            if (left[i] <= right[j]) {
+                arr[k] = left[i++];
+            } else {
+                arr[k] = right[j++];
+            }
+            bars[k].style.height = arr[k] + 'px';
+            bars[k].classList.add('done');
+            k++;
+        }
+        while (i < left.length) {
+            arr[k] = left[i++];
+            bars[k].style.height = arr[k] + 'px';
+            bars[k].classList.add('done');
+            k++;
+        }
+        while (j < right.length) {
+            arr[k] = right[j++];
+            bars[k].style.height = arr[k] + 'px';
+            bars[k].classList.add('done');
+            k++;
+        }
+    }
+
+    async function sortRecursive(l, r) {
+        if (l >= r) return;
+        let m = Math.floor((l + r) / 2);
+        await sortRecursive(l, m);
+        await sortRecursive(m + 1, r);
+        await merge(l, m, r);
+    }
+
+    async function sort() {
+        await sortRecursive(0, size - 1);
+    }
+</script>
