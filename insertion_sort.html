@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
     <style>
         body { font-family: sans-serif; margin: 10px; background: #fff; }
         .canvas { display: flex; align-items: flex-end; justify-content: center; height: 160px; gap: 4px; background: #2c3e50; padding: 10px; border-radius: 8px; }
@@ -31,7 +30,7 @@
         }
         async function sort() {
             let bars = document.getElementsByClassName('bar');
-            bars[0].classList.add('done'); // 第一個預設完成
+            bars[0].classList.add('done');
             for(let i=1; i<size; i++) {
                 let key = arr[i];
                 let j = i - 1;
@@ -39,17 +38,19 @@
                 await new Promise(r => setTimeout(r, 100));
 
                 while(j >= 0 && arr[j] > key) {
+                    bars[j].classList.add('active');
+                    await new Promise(r => setTimeout(r, 50));
                     arr[j+1] = arr[j];
                     bars[j+1].style.height = arr[j+1] + 'px';
+                    bars[j].classList.remove('active');
                     bars[j+1].classList.add('done');
                     j--;
-                    await new Promise(r => setTimeout(r, 50));
                 }
                 arr[j+1] = key;
                 bars[j+1].style.height = arr[j+1] + 'px';
                 bars[i].classList.remove('active');
                 
-                // 確保排序過的部分顏色一致
+                // 確保排序好的區域顏色一致
                 for(let k=0; k<=i; k++) bars[k].classList.add('done');
             }
         }
