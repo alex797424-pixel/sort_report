@@ -1,46 +1,212 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-tw">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>插入排序法 (Insertion Sort) 原理與操作</title>
     <style>
-        body { font-family: sans-serif; text-align: center; }
-        .canvas { display: flex; align-items: flex-end; justify-content: center; height: 200px; gap: 4px; background: #2c3e50; padding: 20px; border-radius: 8px; }
-        .bar { background: #3498db; width: 20px; }
-        .active { background: #e74c3c !important; }
-        .done { background: #2ecc71 !important; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1 { color: #d35400; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .theory-box {
+            background-color: #fcf3cf;
+            border-left: 5px solid #d35400;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        #visualization {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        #array-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 8px;
+            height: 250px;
+            margin: 20px 0;
+            border-bottom: 3px solid #34495e;
+            padding-bottom: 5px;
+            padding-top: 30px; /* 預留往上提的空間 */
+        }
+        .bar {
+            width: 45px;
+            background-color: #3498db; /* 預設藍色：未排序 */
+            color: white;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 8px;
+            border-radius: 5px 5px 0 0;
+            transition: height 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+        }
+        
+        /* 狀態顏色 */
+        .bar.sorted { background-color: #2ecc71; }    /* 綠色：已排好序的左側區間 */
+        .bar.active { 
+            background-color: #f39c12;                /* 橘色：被抽出來準備插入的牌 */
+            transform: translateY(-20px);             /* 視覺上往上提 */
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+            z-index: 10;
+        } 
+        .bar.shifting { background-color: #e74c3c; }  /* 紅色：正在往右退讓的數字 */
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #d35400;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #a04000; }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        
+        #status-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #d35400;
+            min-height: 30px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <h3>📇 插入排序 (Insertion Sort)</h3>
-    <div class="canvas" id="canvas"></div>
-    <p><button onclick="init()">重置</button> <button onclick="sort()">開始排序</button></p>
+
+    <h1>插入排序法 (Insertion Sort)</h1>
+
+    <div class="theory-box">
+        <h3>💡 基本原理</h3>
+        <p>插入排序法就像在整理撲克牌：</p>
+        <ol>
+            <li>將陣列的第一個元素視為<strong>「已經排好的手牌」</strong>。</li>
+            <li>拿出未排序區間的第一個元素（這就是準備要插入的新牌）。</li>
+            <li>將新牌與手中已排好的牌<strong>從右到左</strong>依序比較。</li>
+            <li>如果手中的牌比新牌大，就把手中的牌<strong>往右挪一個位置</strong>，騰出空間。</li>
+            <li>直到找到比新牌小（或相等）的牌，就將新牌<strong>插入</strong>到那個空位中。</li>
+            <li>重複這個動作，直到所有牌都插入手中。</li>
+        </ol>
+    </div>
+
+    <div id="visualization">
+        <div class="controls">
+            <button id="btn-generate">產生隨機陣列</button>
+            <button id="btn-sort">開始排序</button>
+        </div>
+        
+        <div id="status-text">點擊「開始排序」觀察運作過程</div>
+        
+        <div id="array-container"></div>
+    </div>
+
     <script>
-        let arr = []; const size = 20;
-        function init() {
-            arr = Array.from({length: size}, () => Math.floor(Math.random() * 150) + 20);
-            const c = document.getElementById('canvas'); c.innerHTML = '';
-            arr.forEach(v => {
-                const b = document.createElement('div'); b.className = 'bar';
-                b.style.height = v + 'px'; c.appendChild(b);
-            });
-        }
-        async function sort() {
-            let bars = document.getElementsByClassName('bar');
-            for(let i=1; i<size; i++) {
-                let key = arr[i]; let j = i - 1;
-                bars[i].classList.add('active');
-                while(j >= 0 && arr[j] > key) {
-                    await new Promise(r => setTimeout(r, 50));
-                    arr[j+1] = arr[j];
-                    bars[j+1].style.height = arr[j+1] + 'px';
-                    j--;
-                }
-                arr[j+1] = key; bars[j+1].style.height = key + 'px';
-                bars[i].classList.remove('active');
-                for(let k=0; k<=i; k++) bars[k].classList.add('done');
+        let array = [];
+        const container = document.getElementById('array-container');
+        const statusText = document.getElementById('status-text');
+        const btnGenerate = document.getElementById('btn-generate');
+        const btnSort = document.getElementById('btn-sort');
+        const ARRAY_SIZE = 8;
+        const ANIMATION_SPEED = 600;
+
+        function generateArray() {
+            array = [];
+            container.innerHTML = '';
+            statusText.textContent = '準備就緒！';
+            btnSort.disabled = false;
+
+            for (let i = 0; i < ARRAY_SIZE; i++) {
+                const value = Math.floor(Math.random() * 90) + 10;
+                array.push(value);
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${value * 2}px`;
+                bar.textContent = value;
+                container.appendChild(bar);
             }
         }
-        init();
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function insertionSort() {
+            btnGenerate.disabled = true;
+            btnSort.disabled = true;
+            
+            const bars = document.querySelectorAll('.bar');
+            const n = array.length;
+
+            // 步驟 1：第一個元素視為已排序 (變綠色)
+            bars[0].classList.add('sorted');
+            statusText.textContent = `第 1 個元素 ${array[0]} 視為已排序區間。`;
+            await sleep(ANIMATION_SPEED);
+
+            // 從第二個元素開始往回插
+            for (let i = 1; i < n; i++) {
+                let key = array[i]; // 取出要插入的數字
+                let j = i - 1;
+
+                // 視覺效果：把要插入的數字標示為橘色並往上提
+                bars[i].classList.add('active');
+                statusText.textContent = `抽出 ${key}，準備插入前面的綠色區間`;
+                await sleep(ANIMATION_SPEED);
+
+                // 從右到左檢查已排序區間
+                while (j >= 0 && array[j] > key) {
+                    bars[j].classList.add('shifting');
+                    statusText.textContent = `${array[j]} 大於 ${key}，將 ${array[j]} 往右挪動`;
+                    await sleep(ANIMATION_SPEED * 0.8);
+
+                    // 在陣列與畫面上將數字往右移
+                    array[j + 1] = array[j];
+                    bars[j + 1].style.height = `${array[j + 1] * 2}px`;
+                    bars[j + 1].textContent = array[j + 1];
+                    
+                    bars[j].classList.remove('shifting');
+                    j--;
+                }
+
+                // 找到正確位置，插入數字
+                array[j + 1] = key;
+                bars[j + 1].style.height = `${key * 2}px`;
+                bars[j + 1].textContent = key;
+                
+                statusText.textContent = `找到位置！將 ${key} 插入。`;
+                
+                // 恢復 CSS 狀態並將目前經過的範圍都標示為綠色(已排序)
+                bars[i].classList.remove('active');
+                for (let k = 0; k <= i; k++) {
+                    bars[k].classList.add('sorted');
+                }
+                await sleep(ANIMATION_SPEED);
+            }
+
+            statusText.textContent = '🎉 排序完成！';
+            btnGenerate.disabled = false;
+        }
+
+        btnGenerate.addEventListener('click', generateArray);
+        btnSort.addEventListener('click', insertionSort);
+        window.onload = generateArray;
     </script>
 </body>
 </html>
