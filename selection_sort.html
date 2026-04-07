@@ -1,43 +1,215 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-tw">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選擇排序法 (Selection Sort) 原理與操作</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: white; margin: 0; padding: 10px; }
-        .canvas { display: flex; align-items: flex-end; justify-content: center; height: 160px; gap: 4px; background: #2c3e50; padding: 10px; border-radius: 8px; }
-        .bar { background: #3498db; width: 15px; transition: 0.1s; }
-        .active { background: #e74c3c !important; }
-        .done { background: #2ecc71 !important; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1 { color: #8e44ad; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .theory-box {
+            background-color: #f8f9fa;
+            border-left: 5px solid #8e44ad;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        #visualization {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        #array-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 8px;
+            height: 250px;
+            margin: 20px 0;
+            border-bottom: 3px solid #34495e;
+            padding-bottom: 5px;
+        }
+        .bar {
+            width: 45px;
+            background-color: #3498db; /* 預設藍色 */
+            color: white;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 8px;
+            border-radius: 5px 5px 0 0;
+            transition: height 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+        }
+        
+        /* 狀態顏色 */
+        .bar.scanning { background-color: #f39c12; }  /* 橘色：正在掃描 */
+        .bar.min-val { background-color: #e74c3c; transform: scale(1.05); }   /* 紅色：目前的最小值 */
+        .bar.sorted { background-color: #2ecc71; }    /* 綠色：已完成排序 */
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #8e44ad;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #732d91; }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        
+        #status-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #8e44ad;
+            min-height: 30px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <div class="canvas" id="canvas"></div>
-    <div style="margin-top:10px;">
-        <button onclick="init()">重置</button>
-        <button onclick="sort()">開始選擇排序</button>
+
+    <h1>選擇排序法 (Selection Sort)</h1>
+
+    <div class="theory-box">
+        <h3>💡 基本原理</h3>
+        <p>選擇排序法的精神是「尋找並選擇」。它會將陣列分為「已排序」與「未排序」兩個區間：</p>
+        <ol>
+            <li>從<strong>未排序區間</strong>中，掃描所有的數字，找出<strong>最小值</strong>。</li>
+            <li>將這個最小值，與未排序區間的<strong>第一個元素</strong>進行交換。</li>
+            <li>此時，已排序區間增加一個元素，未排序區間減少一個元素。</li>
+            <li>重複上述步驟，直到所有元素都進入已排序區間。</li>
+        </ol>
     </div>
+
+    <div id="visualization">
+        <div class="controls">
+            <button id="btn-generate">產生隨機陣列</button>
+            <button id="btn-sort">開始排序</button>
+        </div>
+        
+        <div id="status-text">點擊「開始排序」觀察運作過程</div>
+        
+        <div id="array-container"></div>
+    </div>
+
     <script>
-        let arr = []; const size = 20;
-        function init() {
-            arr = Array.from({length: size}, () => Math.floor(Math.random() * 120) + 20);
-            const c = document.getElementById('canvas'); c.innerHTML = '';
-            arr.forEach(v => {
-                const b = document.createElement('div'); b.className = 'bar';
-                b.style.height = v + 'px'; c.appendChild(b);
-            });
-        }
-        async function sort() {
-            let bars = document.getElementsByClassName('bar');
-            for(let i=0; i<size; i++) {
-                let min = i; bars[i].classList.add('active');
-                for(let j=i+1; j<size; j++) { if(arr[j] < arr[min]) min = j; }
-                await new Promise(r => setTimeout(r, 100));
-                [arr[i], arr[min]] = [arr[min], arr[i]];
-                bars[i].style.height = arr[i] + 'px'; bars[min].style.height = arr[min] + 'px';
-                bars[i].classList.remove('active'); bars[i].classList.add('done');
+        let array = [];
+        const container = document.getElementById('array-container');
+        const statusText = document.getElementById('status-text');
+        const btnGenerate = document.getElementById('btn-generate');
+        const btnSort = document.getElementById('btn-sort');
+        const ARRAY_SIZE = 8;
+        const ANIMATION_SPEED = 500;
+
+        // 初始化陣列
+        function generateArray() {
+            array = [];
+            container.innerHTML = '';
+            statusText.textContent = '準備就緒！';
+            btnSort.disabled = false;
+
+            for (let i = 0; i < ARRAY_SIZE; i++) {
+                const value = Math.floor(Math.random() * 90) + 10;
+                array.push(value);
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${value * 2}px`;
+                bar.textContent = value;
+                container.appendChild(bar);
             }
         }
-        init(); // 網頁開啟時先執行初始化
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // 選擇排序核心邏輯
+        async function selectionSort() {
+            btnGenerate.disabled = true;
+            btnSort.disabled = true;
+            
+            const bars = document.querySelectorAll('.bar');
+            const n = array.length;
+
+            for (let i = 0; i < n - 1; i++) {
+                let minIndex = i; // 假設未排序區間的第一個元素是最小值
+                bars[minIndex].classList.add('min-val');
+                statusText.textContent = `第 ${i + 1} 輪開始：假設目前最小值為 ${array[minIndex]}`;
+                await sleep(ANIMATION_SPEED);
+
+                // 從 i+1 開始往後找真正的最小值
+                for (let j = i + 1; j < n; j++) {
+                    bars[j].classList.add('scanning');
+                    statusText.textContent = `掃描中... 檢查 ${array[j]} 是否小於 ${array[minIndex]}`;
+                    await sleep(ANIMATION_SPEED / 2);
+
+                    if (array[j] < array[minIndex]) {
+                        // 找到更小的值了！更新 minIndex
+                        bars[minIndex].classList.remove('min-val'); // 移除舊的紅色標記
+                        minIndex = j;
+                        bars[minIndex].classList.add('min-val');    // 加上新的紅色標記
+                        statusText.textContent = `找到更小的值了！目前最小值更新為 ${array[minIndex]}`;
+                        await sleep(ANIMATION_SPEED);
+                    }
+                    
+                    // 掃描完畢，移除橘色標記
+                    bars[j].classList.remove('scanning');
+                }
+
+                // 一輪掃描結束，如果最小值不在最前面 (i)，則交換它們
+                if (minIndex !== i) {
+                    statusText.textContent = `本輪結束！將最小值 ${array[minIndex]} 與開頭位置的 ${array[i]} 交換`;
+                    await sleep(ANIMATION_SPEED);
+
+                    // 陣列內交換
+                    let temp = array[i];
+                    array[i] = array[minIndex];
+                    array[minIndex] = temp;
+
+                    // 畫面上交換高度與數字
+                    bars[i].style.height = `${array[i] * 2}px`;
+                    bars[i].textContent = array[i];
+                    bars[minIndex].style.height = `${array[minIndex] * 2}px`;
+                    bars[minIndex].textContent = array[minIndex];
+                } else {
+                    statusText.textContent = `最小值已經在開頭位置，不需要交換。`;
+                }
+                
+                await sleep(ANIMATION_SPEED);
+
+                // 清除紅色標記，並把這個位置標示為「已排序」(綠色)
+                bars[minIndex].classList.remove('min-val');
+                bars[i].classList.add('sorted');
+            }
+
+            // 最後一個元素自然也就位了
+            bars[n - 1].classList.add('sorted');
+            statusText.textContent = '🎉 排序完成！';
+            
+            btnGenerate.disabled = false;
+        }
+
+        btnGenerate.addEventListener('click', generateArray);
+        btnSort.addEventListener('click', selectionSort);
+        window.onload = generateArray;
     </script>
 </body>
 </html>
