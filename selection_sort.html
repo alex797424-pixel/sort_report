@@ -1,18 +1,86 @@
-<script>
-    async function sort() {
-        let bars = document.getElementsByClassName('bar');
-        for(let i=0; i<size; i++) {
-            let min = i;
-            bars[i].classList.add('active');
-            for(let j=i+1; j<size; j++) {
-                if(arr[j] < arr[min]) min = j;
-            }
-            await new Promise(r => setTimeout(r, 100));
-            [arr[i], arr[min]] = [arr[min], arr[i]];
-            bars[i].style.height = arr[i] + 'px';
-            bars[min].style.height = arr[min] + 'px';
-            bars[i].classList.remove('active');
-            bars[i].classList.add('done');
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #fff; margin: 0; padding: 10px; }
+        .canvas { 
+            display: flex; 
+            align-items: flex-end; 
+            justify-content: center; 
+            height: 200px; 
+            gap: 4px; 
+            background: #2c3e50; 
+            padding: 20px; 
+            border-radius: 8px;
         }
-    }
-</script>
+        .bar { background: #3498db; width: 20px; transition: 0.2s; }
+        .active { background: #e74c3c !important; } /* 當前處理中的顏色 */
+        .done { background: #2ecc71 !important; }   /* 已排序完成的顏色 */
+        .controls { margin-top: 15px; }
+        button { padding: 8px 16px; cursor: pointer; background: #ecf0f1; border: 1px solid #bdc3c7; border-radius: 4px; }
+        button:hover { background: #ddd; }
+    </style>
+</head>
+<body>
+
+    <div class="canvas" id="canvas"></div>
+    
+    <div class="controls">
+        <button onclick="init()">重置數據</button>
+        <button onclick="sort()">開始選擇排序</button>
+    </div>
+
+    <script>
+        let arr = [];
+        const size = 20; // 設定資料量
+
+        // 1. 初始化資料並顯示
+        function init() {
+            arr = Array.from({length: size}, () => Math.floor(Math.random() * 150) + 20);
+            const canvas = document.getElementById('canvas');
+            canvas.innerHTML = '';
+            arr.forEach(v => {
+                const b = document.createElement('div');
+                b.className = 'bar';
+                b.style.height = v + 'px';
+                canvas.appendChild(b);
+            });
+        }
+
+        // 2. 選擇排序核心邏輯
+        async function sort() {
+            let bars = document.getElementsByClassName('bar');
+            
+            for(let i = 0; i < size; i++) {
+                let min = i;
+                bars[i].classList.add('active'); // 標記目前掃描的起點
+                
+                for(let j = i + 1; j < size; j++) {
+                    // 這裡可以視需求加入 j 的視覺標記
+                    if(arr[j] < arr[min]) {
+                        min = j;
+                    }
+                }
+
+                // 等待一下，讓肉眼看得到變化
+                await new Promise(r => setTimeout(r, 150));
+
+                // 交換數據
+                if (min !== i) {
+                    [arr[i], arr[min]] = [arr[min], arr[i]];
+                    // 更新高度（視覺化交換）
+                    bars[i].style.height = arr[i] + 'px';
+                    bars[min].style.height = arr[min] + 'px';
+                }
+
+                bars[i].classList.remove('active');
+                bars[i].classList.add('done'); // 標記為已完成
+            }
+        }
+
+        // 頁面載入時先執行一次初始化
+        init();
+    </script>
+</body>
+</html>
