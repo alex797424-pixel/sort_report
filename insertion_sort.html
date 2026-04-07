@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <style>
         body { font-family: sans-serif; margin: 10px; background: #fff; }
         .canvas { display: flex; align-items: flex-end; justify-content: center; height: 160px; gap: 4px; background: #2c3e50; padding: 10px; border-radius: 8px; }
         .bar { background: #3498db; width: 15px; transition: 0.1s; }
-        .active { background: #e74c3c !important; } /* 目前正在比較的柱子 */
-        .done { background: #2ecc71 !important; }   /* 已排序完成的區域 */
+        .active { background: #e74c3c !important; } /* 正在移動的柱子 */
+        .done { background: #2ecc71 !important; }   /* 已排序完成的部分 */
     </style>
 </head>
 <body>
@@ -33,39 +34,43 @@
         async function sort() {
             let bars = document.getElementsByClassName('bar');
             
-            // 第一根柱子預設為已排序
+            // 插入排序從第二根開始，第一根預設已排序
             bars[0].classList.add('done');
 
             for (let i = 1; i < size; i++) {
                 let key = arr[i];
                 let j = i - 1;
 
-                // 標記當前要處理的柱子 (紅色)
+                // 1. 標記目前要插入的對象 (變紅色)
                 bars[i].classList.add('active');
-                await new Promise(r => setTimeout(r, 100));
+                await new Promise(r => setTimeout(r, 150));
 
-                // 將大於 key 的柱子往右移動，騰出位置
+                // 2. 開始往左比對，如果左邊比 key 大，就把左邊的往右挪
                 while (j >= 0 && arr[j] > key) {
-                    bars[j].classList.add('active'); // 標記正在比較的左側對象
+                    // 標記正在比較的對象
+                    bars[j].classList.add('active');
                     
+                    // 數據位移
                     arr[j + 1] = arr[j];
-                    // 關鍵：同步更新長條圖高度
+                    
+                    // --- 關鍵：視覺位移 ---
+                    // 讓右邊的柱子長得跟左邊一樣高，模擬「挪動」的動作
                     bars[j + 1].style.height = arr[j] + 'px';
                     
                     await new Promise(r => setTimeout(r, 50));
                     
-                    // 移動完後移除比較色，並確保它是綠色的 (因為它還在已排序區)
-                    bars[j].classList.remove('active');
+                    // 挪完後，j+1 的位置已經被填入數字，標記為已排序
                     bars[j + 1].classList.add('done');
+                    bars[j].classList.remove('active');
                     
                     j = j - 1;
                 }
                 
-                // 將 key 插入正確位置
+                // 3. 把 key 塞進最後空出來的位置
                 arr[j + 1] = key;
                 bars[j + 1].style.height = key + 'px';
                 
-                // 清除 active 色彩，標記這整段為 done
+                // 4. 清除這輪的 active 顏色，並確保已排序區全是綠色
                 bars[i].classList.remove('active');
                 for(let k = 0; k <= i; k++) {
                     bars[k].classList.add('done');
