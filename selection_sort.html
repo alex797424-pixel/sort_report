@@ -1,41 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選擇排序模擬器</title>
     <style>
-        body { font-family: sans-serif; text-align: center; }
-        .canvas { display: flex; align-items: flex-end; justify-content: center; height: 200px; gap: 4px; background: #2c3e50; padding: 20px; border-radius: 8px; }
-        .bar { background: #3498db; width: 20px; transition: 0.2s; }
-        .active { background: #e74c3c !important; }
-        .done { background: #2ecc71 !important; }
+        /* 統一背景為白色，佈局置中 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 動畫畫布區域：深藍色背景 */
+        #data-container {
+            width: 100%;
+            max-width: 900px;
+            height: 300px;
+            background-color: #2c3e50; /* 深藍背景 */
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* 柱子由下而上 */
+            padding: 15px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 25px;
+        }
+
+        /* 柱狀圖樣式：藍色 */
+        .bar {
+            background-color: #3498db; /* 藍色 */
+            margin: 0 2px;
+            border-radius: 3px 3px 0 0;
+            transition: height 0.2s ease, background-color 0.2s ease;
+        }
+
+        /* 正在掃描/比較的柱子：紅色 */
+        .bar.active {
+            background-color: #e74c3c;
+        }
+
+        /* 當前找到最小值的柱子：黃色 */
+        .bar.min {
+            background-color: #f1c40f;
+        }
+
+        /* 控制按鈕樣式 */
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #fff;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            color: #333;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background-color: #f1f1f1;
+        }
+
+        button:disabled {
+            background-color: #f5f5f5;
+            color: #aaa;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
-    <h3>🎯 選擇排序 (Selection Sort)</h3>
-    <div class="canvas" id="canvas"></div>
-    <p><button onclick="init()">重置</button> <button onclick="sort()">開始排序</button></p>
+
+    <div id="data-container"></div>
+
+    <div class="controls">
+        <button onclick="resetArray()" id="resetBtn">重置</button>
+        <button onclick="selectionSort()" id="sortBtn">開始選擇排序</button>
+    </div>
+
     <script>
-        let arr = []; const size = 20;
-        function init() {
-            arr = Array.from({length: size}, () => Math.floor(Math.random() * 150) + 20);
-            const c = document.getElementById('canvas'); c.innerHTML = '';
-            arr.forEach(v => {
-                const b = document.createElement('div'); b.className = 'bar';
-                b.style.height = v + 'px'; c.appendChild(b);
-            });
-        }
-        async function sort() {
-            let bars = document.getElementsByClassName('bar');
-            for(let i=0; i<size; i++) {
-                let min = i; bars[i].classList.add('active');
-                for(let j=i+1; j<size; j++) { if(arr[j] < arr[min]) min = j; }
-                await new Promise(r => setTimeout(r, 100));
-                [arr[i], arr[min]] = [arr[min], arr[i]];
-                bars[i].style.height = arr[i] + 'px'; bars[min].style.height = arr[min] + 'px';
-                bars[i].classList.remove('active'); bars[i].classList.add('done');
+        const container = document.getElementById('data-container');
+        const sortBtn = document.getElementById('sortBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        
+        let array = [];
+        const ARRAY_SIZE = 30; // 柱子數量
+        const MAX_HEIGHT = 270;
+
+        // 初始化
+        function resetArray() {
+            array = [];
+            container.innerHTML = '';
+            for (let i = 0; i < ARRAY_SIZE; i++) {
+                const value = Math.floor(Math.random() * (MAX_HEIGHT - 20)) + 20;
+                array.push(value);
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${value}px`;
+                bar.style.width = `${(100 / ARRAY_SIZE) - 0.8}%`;
+                bar.id = `bar-${i}`;
+                container.appendChild(bar);
             }
+            sortBtn.disabled = false;
         }
-        init();
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // 選擇排序邏輯
+        async function selectionSort() {
+            sortBtn.disabled = true;
+            resetBtn.disabled = true;
+            const bars = document.getElementsByClassName('bar');
+
+            for (let i = 0; i < array.length; i++) {
+                let minIdx = i;
+                // 標記目前掃描的起始位置
+                bars[i].classList.add('active');
+
+                for (let j = i + 1; j < array.length; j++) {
+                    bars[j].classList.add('active'); // 正在比較的對象
+                    await sleep(30);
+
+                    if (array[j] < array[minIdx]) {
+                        // 如果找到更小的，取消前一個 min 的黃色，標記新的 min 為黃色
+                        if (minIdx !== i) bars[minIdx].classList.remove('min');
+                        minIdx = j;
+                        bars[minIdx].classList.add('min');
+                    }
+                    
+                    bars[j].classList.remove('active');
+                }
+
+                // 交換數據
+                if (minIdx !== i) {
+                    [array[i], array[minIdx]] = [array[minIdx], array[i]];
+                    // 更新視覺高度
+                    bars[i].style.height = `${array[i]}px`;
+                    bars[minIdx].style.height = `${array[minIdx]}px`;
+                }
+
+                // 清除顏色，標記為已排序
+                bars[minIdx].classList.remove('min');
+                bars[i].classList.remove('active');
+                bars[i].style.backgroundColor = "#3498db"; // 恢復藍色
+            }
+            
+            resetBtn.disabled = false;
+        }
+
+        resetArray();
     </script>
 </body>
 </html>
