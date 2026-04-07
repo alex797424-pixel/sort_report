@@ -1,18 +1,41 @@
-<script>
-    async function sort() {
-        let bars = document.getElementsByClassName('bar');
-        for(let i=0; i<size; i++) {
-            let min = i;
-            bars[i].classList.add('active');
-            for(let j=i+1; j<size; j++) {
-                if(arr[j] < arr[min]) min = j;
-            }
-            await new Promise(r => setTimeout(r, 100));
-            [arr[i], arr[min]] = [arr[min], arr[i]];
-            bars[i].style.height = arr[i] + 'px';
-            bars[min].style.height = arr[min] + 'px';
-            bars[i].classList.remove('active');
-            bars[i].classList.add('done');
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: sans-serif; text-align: center; }
+        .canvas { display: flex; align-items: flex-end; justify-content: center; height: 200px; gap: 4px; background: #2c3e50; padding: 20px; border-radius: 8px; }
+        .bar { background: #3498db; width: 20px; transition: 0.2s; }
+        .active { background: #e74c3c !important; }
+        .done { background: #2ecc71 !important; }
+    </style>
+</head>
+<body>
+    <h3>🎯 選擇排序 (Selection Sort)</h3>
+    <div class="canvas" id="canvas"></div>
+    <p><button onclick="init()">重置</button> <button onclick="sort()">開始排序</button></p>
+    <script>
+        let arr = []; const size = 20;
+        function init() {
+            arr = Array.from({length: size}, () => Math.floor(Math.random() * 150) + 20);
+            const c = document.getElementById('canvas'); c.innerHTML = '';
+            arr.forEach(v => {
+                const b = document.createElement('div'); b.className = 'bar';
+                b.style.height = v + 'px'; c.appendChild(b);
+            });
         }
-    }
-</script>
+        async function sort() {
+            let bars = document.getElementsByClassName('bar');
+            for(let i=0; i<size; i++) {
+                let min = i; bars[i].classList.add('active');
+                for(let j=i+1; j<size; j++) { if(arr[j] < arr[min]) min = j; }
+                await new Promise(r => setTimeout(r, 100));
+                [arr[i], arr[min]] = [arr[min], arr[i]];
+                bars[i].style.height = arr[i] + 'px'; bars[min].style.height = arr[min] + 'px';
+                bars[i].classList.remove('active'); bars[i].classList.add('done');
+            }
+        }
+        init();
+    </script>
+</body>
+</html>
