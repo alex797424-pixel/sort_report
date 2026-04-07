@@ -6,142 +6,131 @@
     <title>排序演算法分析報告 - 簡睿言</title>
     <style>
         :root {
-            --primary: #4a90e2;
+            --primary: #3498db;
             --secondary: #2c3e50;
-            --bg: #f5f7fa;
-            --white: #ffffff;
+            --bg: #f4f7f6;
         }
 
         body {
-            font-family: 'Microsoft JhengHei', sans-serif;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
             background-color: var(--bg);
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
+            color: var(--secondary);
         }
 
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            background: var(--white);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
 
-        /* 個人資訊區 */
-        header {
-            text-align: center;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 20px;
+        /* 個人資訊區樣式修正 */
+        .personal-info {
+            background: #eef2f7;
+            padding: 20px;
+            border-left: 5px solid var(--primary);
+            border-radius: 4px;
             margin-bottom: 30px;
         }
 
-        .info-box {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            display: inline-block;
-            text-align: left;
+        /* 關鍵：五個排序法的索引按鈕樣式 */
+        .sort-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
         }
 
-        /* 導覽選單 (導入按鈕) */
-        .menu-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            padding: 0;
-            list-style: none;
-        }
-
-        .menu-list a {
+        .sort-link {
             text-decoration: none;
-            color: var(--secondary);
-            background: #fff;
-            border: 1px solid #ddd;
-            padding: 10px 20px;
-            border-radius: 5px;
+            background: var(--white);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
             font-weight: bold;
-            transition: 0.3s;
+            transition: all 0.3s;
         }
 
-        .menu-list a:hover {
+        .sort-link:hover {
             background: var(--primary);
             color: white;
-            border-color: var(--primary);
+            transform: translateY(-3px);
         }
 
-        /* 動畫導入區域 (iframe) */
-        .display-area {
-            margin-top: 20px;
+        /* 動畫顯示區域 */
+        #display-frame {
             width: 100%;
-            height: 450px; /* 這裡控制動畫區的高度 */
+            height: 450px;
             border: 2px solid #eee;
-            border-radius: 10px;
-            background: #fafafa;
+            border-radius: 8px;
+            margin-top: 20px;
         }
 
-        /* 修正表格排版 */
-        .table-section {
-            margin-top: 40px;
+        /* 修正表格滿版排版 */
+        .table-wrapper {
             width: 100%;
+            overflow-x: auto;
+            margin-top: 40px;
         }
 
         table {
-            width: 100%; /* 強制滿版 */
+            width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
         }
 
         th {
-            background-color: var(--secondary);
+            background-color: var(--primary);
             color: white;
             padding: 12px;
         }
 
         td {
-            padding: 10px;
-            border: 1px solid #ddd;
+            padding: 12px;
+            border: 1px solid #eee;
             text-align: center;
         }
 
-        tr:nth-child(even) { background: #f9f9f9; }
-
-        .conclusion {
+        .conclusion-box {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
             margin-top: 30px;
-            padding: 20px;
-            background: #e8f4fd;
-            border-left: 5px solid var(--primary);
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>📊 排序演算法分析報告</h1>
-        <div class="info-box">
-            <strong>學號：</strong> 11428114 <br>
-            <strong>姓名：</strong> 簡睿言
-        </div>
-    </header>
+    <h1>📊 排序演算法分析報告</h1>
 
-    <section>
-        <h3 style="text-align: center;">🚀 點擊下方按鈕切換模擬動畫：</h3>
-        <ul class="menu-list">
-            <li><a href="bubble_sort.html" target="view">🫧 氣泡排序</a></li>
-            <li><a href="selection_sort.html" target="view">🎯 選擇排序</a></li>
-            <li><a href="insertion_sort.html" target="view">📇 插入排序</a></li>
-            <li><a href="merge_sort.html" target="view">✂️ 合併排序</a></li>
-            <li><a href="quick_sort.html" target="view">⚡ 快速排序</a></li>
+    <div class="personal-info">
+        <h3>👤 個人資訊</h3>
+        <ul style="list-style: none; padding: 0; line-height: 2;">
+            <li><strong>學號：</strong> 11428114</li>
+            <li><strong>姓名：</strong> 簡睿言</li>
+            <li><strong>模擬頁面：</strong> <a href="https://alex797424-pixel.github.io/sort_report/">點此刷新首頁</a></li>
         </ul>
+    </div>
 
-        <iframe name="view" class="display-area" src="bubble_sort.html"></iframe>
-    </section>
+    <h2>🔍 演算法模擬索引 (Index)</h2>
+    <div class="sort-menu">
+        <a href="bubble_sort.html" target="sortFrame" class="sort-link">🫧 氣泡排序</a>
+        <a href="selection_sort.html" target="sortFrame" class="sort-link">🎯 選擇排序</a>
+        <a href="insertion_sort.html" target="sortFrame" class="sort-link">📇 插入排序</a>
+        <a href="merge_sort.html" target="sortFrame" class="sort-link">✂️ 合併排序</a>
+        <a href="quick_sort.html" target="sortFrame" class="sort-link">⚡ 快速排序</a>
+    </div>
 
-    <section class="table-section">
-        <h2>📈 演算法複雜度分析比較</h2>
+    <iframe name="sortFrame" id="display-frame" src="bubble_sort.html"></iframe>
+
+    <div class="table-wrapper">
+        <h2>📊 演算法綜合比較表</h2>
         <table>
             <thead>
                 <tr>
@@ -159,19 +148,15 @@
                 <tr><td>快速排序</td><td>O(n log n)</td><td>O(log n)</td><td>不穩定</td></tr>
             </tbody>
         </table>
-    </section>
+    </div>
 
-    <section class="conclusion">
+    <div class="conclusion-box">
         <h2>💡 實驗心得與結論</h2>
-        <p>
-            在這次實驗中，我觀察到當資料量 $n$ 增加時，$O(n \log n)$ 的演算法展現了極大的優勢。
-            透過 <code>iframe</code> 整合不同的模擬頁面，能更直觀地比較不同演算法在視覺上的運作差異。
-            這讓我明白選擇合適演算法的重要性，必須根據資料規模與穩定性需求來做取捨。
-        </p>
-    </section>
+        <p>在這次實驗中，我觀察到當資料量 $n$ 增加時，$O(n \log n)$ 的演算法（如快速排序）展現了極大的優勢。雖然氣泡排序和選擇排序實作簡單，但在處理大量數據時效率明顯不足。這讓我明白選擇合適演算法的重要性。</p>
+    </div>
 
-    <footer style="text-align: center; margin-top: 40px; color: #888;">
-        © 2026 簡睿言 - 演算法分析報告
+    <footer style="text-align: center; margin-top: 40px; color: #999; font-size: 0.9em;">
+        © 2026 簡睿言 - 演算法課後分析報告
     </footer>
 </div>
 
