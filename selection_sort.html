@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
     <style>
         body { font-family: sans-serif; margin: 10px; background: #fff; }
         .canvas { display: flex; align-items: flex-end; justify-content: center; height: 160px; gap: 4px; background: #2c3e50; padding: 10px; border-radius: 8px; }
         .bar { background: #3498db; width: 15px; transition: 0.1s; }
-        .active { background: #e74c3c !important; } /* 正在掃描的顏色 */
-        .done { background: #2ecc71 !important; }   /* 排序完成的顏色 */
+        .active { background: #e74c3c !important; }
+        .done { background: #2ecc71 !important; }
     </style>
 </head>
 <body>
@@ -33,7 +32,7 @@
             let bars = document.getElementsByClassName('bar');
             for(let i=0; i<size; i++) {
                 let min = i;
-                bars[i].classList.add('active'); // 標記目前掃描的起點
+                bars[i].classList.add('active'); 
                 for(let j=i+1; j<size; j++) {
                     bars[j].classList.add('active');
                     await new Promise(r => setTimeout(r, 30));
@@ -42,7 +41,7 @@
                     }
                     bars[j].classList.remove('active');
                 }
-                // 交換
+                // 交換數值與視覺高度
                 [arr[i], arr[min]] = [arr[min], arr[i]];
                 bars[i].style.height = arr[i] + 'px';
                 bars[min].style.height = arr[min] + 'px';
