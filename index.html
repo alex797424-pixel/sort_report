@@ -1,51 +1,28 @@
-<!DOCTYPE html>
-<html lang="zh-tw">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的排序法學習大廳</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 2rem;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #f9f9f9;
-        }
-        h1 { color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 10px; }
-        .menu-list { list-style-type: none; padding: 0; }
-        .menu-list li { margin-bottom: 15px; }
-        .menu-list a {
-            display: block;
-            padding: 15px 20px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            color: #34495e;
-            text-decoration: none;
-            font-size: 1.2rem;
-            font-weight: bold;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .menu-list a:hover {
-            background-color: #3498db;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-    </style>
-</head>
-<body>
-    <h1>📊 排序演算法大廳</h1>
-    <p>歡迎來到這裡！請選擇你想觀察的排序法：</p>
-   
-    <ul class="menu-list">
-        <li><a href="bubble_sort.html">🫧 氣泡排序法 (Bubble Sort)</a></li>
-        <li><a href="selection_sort.html">🎯 選擇排序法 (Selection Sort)</a></li>
-        <li><a href="Insertion_Sort.html">🃏 插入排序法 (Insertion Sort)</a></li>
-        <li><a href="merge_sort.html">✂️ 合併排序法 (Merge Sort)</a></li>
-        <li><a href="quick_sort.html">⚡ 快速排序法 (Quick Sort)</a></li>
-    </ul>
-</body>
-</html>
+<section style="margin-top: 40px; border-top: 2px solid #eee; padding-top: 20px;">
+    <h2>📊 演算法綜合比較表</h2>
+    <table style="width:100%; border-collapse: collapse; margin: 20px 0;">
+        <thead>
+            <tr style="background-color: #3498db; color: white;">
+                <th style="padding: 10px; border: 1px solid #ddd;">排序法</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">平均時間複雜度</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">空間複雜度</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">穩定性</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>氣泡排序</td><td>O(n²)</td><td>O(1)</td><td>穩定</td></tr>
+            <tr><td>選擇排序</td><td>O(n²)</td><td>O(1)</td><td>不穩定</td></tr>
+            <tr><td>插入排序</td><td>O(n²)</td><td>O(1)</td><td>穩定</td></tr>
+            <tr><td>合併排序</td><td>O(n log n)</td><td>O(n)</td><td>穩定</td></tr>
+            <tr><td>快速排序</td><td>O(n log n)</td><td>O(log n)</td><td>不穩定</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px;">
+    <h2>💡 實驗心得與結論</h2>
+    <p>
+        在這次實驗中，我觀察到當資料量 $n$ 增加時，$O(n \log n)$ 的演算法（如快速排序）展現了極大的優勢。
+        雖然氣泡排序和選擇排序實作簡單，但在處理大量數據時效率明顯不足。這讓我明白選擇合適演算法的重要性。
+    </p>
+</section>
