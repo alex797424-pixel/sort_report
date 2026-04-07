@@ -1,21 +1,59 @@
-<script>
-    async function sort() {
-        let bars = document.getElementsByClassName('bar');
-        bars[0].classList.add('done');
-        for(let i=1; i<size; i++) {
-            let key = arr[i];
-            let j = i - 1;
-            bars[i].classList.add('active');
-            while(j >= 0 && arr[j] > key) {
-                await new Promise(r => setTimeout(r, 50));
-                arr[j+1] = arr[j];
-                bars[j+1].style.height = arr[j+1] + 'px';
-                j--;
-            }
-            arr[j+1] = key;
-            bars[j+1].style.height = key + 'px';
-            bars[i].classList.remove('active');
-            for(let k=0; k<=i; k++) bars[k].classList.add('done');
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: sans-serif; margin: 10px; background: #fff; }
+        .canvas { display: flex; align-items: flex-end; justify-content: center; height: 160px; gap: 4px; background: #2c3e50; padding: 10px; border-radius: 8px; }
+        .bar { background: #3498db; width: 15px; transition: 0.1s; }
+        .active { background: #e74c3c !important; }
+        .done { background: #2ecc71 !important; }
+    </style>
+</head>
+<body>
+    <div class="canvas" id="canvas"></div>
+    <div style="text-align:center; margin-top:10px;">
+        <button onclick="init()">重置</button>
+        <button onclick="sort()">開始插入排序</button>
+    </div>
+    <script>
+        let arr = [];
+        const size = 20;
+        function init() {
+            arr = Array.from({length: size}, () => Math.floor(Math.random() * 120) + 20);
+            const c = document.getElementById('canvas');
+            c.innerHTML = '';
+            arr.forEach(v => {
+                const b = document.createElement('div');
+                b.className = 'bar'; b.style.height = v + 'px';
+                c.appendChild(b);
+            });
         }
-    }
-</script>
+        async function sort() {
+            let bars = document.getElementsByClassName('bar');
+            bars[0].classList.add('done'); // 第一個預設完成
+            for(let i=1; i<size; i++) {
+                let key = arr[i];
+                let j = i - 1;
+                bars[i].classList.add('active');
+                await new Promise(r => setTimeout(r, 100));
+
+                while(j >= 0 && arr[j] > key) {
+                    arr[j+1] = arr[j];
+                    bars[j+1].style.height = arr[j+1] + 'px';
+                    bars[j+1].classList.add('done');
+                    j--;
+                    await new Promise(r => setTimeout(r, 50));
+                }
+                arr[j+1] = key;
+                bars[j+1].style.height = arr[j+1] + 'px';
+                bars[i].classList.remove('active');
+                
+                // 確保排序過的部分顏色一致
+                for(let k=0; k<=i; k++) bars[k].classList.add('done');
+            }
+        }
+        init();
+    </script>
+</body>
+</html>
