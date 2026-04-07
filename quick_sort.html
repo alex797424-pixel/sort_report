@@ -1,237 +1,37 @@
-<!DOCTYPE html>
-<html lang="zh-tw">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>快速排序法 (Quick Sort) 原理與操作</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-            color: #333;
-            line-height: 1.6;
-        }
-        h1 { color: #8e44ad; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .theory-box {
-            background-color: #f5eef8;
-            border-left: 5px solid #8e44ad;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-        
-        #visualization {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        #array-container {
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            gap: 8px;
-            height: 250px;
-            margin: 20px 0;
-            border-bottom: 3px solid #34495e;
-            padding-bottom: 5px;
-        }
-        .bar {
-            width: 45px;
-            background-color: #3498db; /* 預設藍色：未排序 */
-            color: white;
-            font-weight: bold;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            padding-bottom: 8px;
-            border-radius: 5px 5px 0 0;
-            transition: height 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
-        }
-        
-        /* 狀態顏色 */
-        .bar.pivot { background-color: #9b59b6; transform: scale(1.05); box-shadow: 0 0 10px rgba(155,89,182,0.5); } /* 紫色：基準點 */
-        .bar.comparing { background-color: #f1c40f; } /* 黃色：正在與基準點比較 */
-        .bar.swapping { background-color: #e74c3c; }  /* 紅色：發生交換 */
-        .bar.sorted { background-color: #2ecc71; }    /* 綠色：已定位在最終正確位置 */
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        button {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 4px;
-            background-color: #8e44ad;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        button:hover { background-color: #732d91; }
-        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
-        
-        #status-text {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #8e44ad;
-            min-height: 30px;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-
-    <h1>快速排序法 (Quick Sort)</h1>
-
-    <div class="theory-box">
-        <h3>💡 基本原理</h3>
-        <p>快速排序法被廣泛認為是實際應用中最快的排序法之一：</p>
-        <ol>
-            <li><strong>挑選基準點 (Pivot)：</strong>通常會挑選陣列的最右邊、最左邊或中間的元素作為基準。這裡我們選擇「最右邊的元素」。</li>
-            <li><strong>分流 (Partition)：</strong>掃描陣列，把<strong>小於</strong>基準點的數字都丟到基準點的左邊，<strong>大於</strong>基準點的數字都丟到右邊。</li>
-            <li><strong>基準點就位：</strong>分流結束後，基準點所在的位置就是它最終排序好的正確位置（變成綠色）。</li>
-            <li><strong>遞迴：</strong>將基準點左邊的區間、右邊的區間，分別重複上述步驟，直到所有數字都排好。</li>
-        </ol>
-    </div>
-
-    <div id="visualization">
-        <div class="controls">
-            <button id="btn-generate">產生隨機陣列</button>
-            <button id="btn-sort">開始排序</button>
-        </div>
-        
-        <div id="status-text">點擊「開始排序」觀察運作過程</div>
-        
-        <div id="array-container"></div>
-    </div>
-
-    <script>
-        let array = [];
-        const container = document.getElementById('array-container');
-        const statusText = document.getElementById('status-text');
-        const btnGenerate = document.getElementById('btn-generate');
-        const btnSort = document.getElementById('btn-sort');
-        const ARRAY_SIZE = 8;
-        const ANIMATION_SPEED = 600;
-
-        function generateArray() {
-            array = [];
-            container.innerHTML = '';
-            statusText.textContent = '準備就緒！';
-            btnSort.disabled = false;
-
-            for (let i = 0; i < ARRAY_SIZE; i++) {
-                const value = Math.floor(Math.random() * 90) + 10;
-                array.push(value);
-                const bar = document.createElement('div');
-                bar.classList.add('bar');
-                bar.style.height = `${value * 2}px`;
-                bar.textContent = value;
-                container.appendChild(bar);
+<script>
+    async function partition(l, r) {
+        let bars = document.getElementsByClassName('bar');
+        let pivot = arr[r];
+        let i = l - 1;
+        bars[r].classList.add('active');
+        for (let j = l; j < r; j++) {
+            if (arr[j] < pivot) {
+                i++;
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+                bars[i].style.height = arr[i] + 'px';
+                bars[j].style.height = arr[j] + 'px';
+                await new Promise(res => setTimeout(res, 50));
             }
         }
+        [arr[i + 1], arr[r]] = [arr[r], arr[i + 1]];
+        bars[i + 1].style.height = arr[i + 1] + 'px';
+        bars[r].style.height = arr[r] + 'px';
+        bars[r].classList.remove('active');
+        bars[i + 1].classList.add('done');
+        return i + 1;
+    }
 
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+    async function sortRecursive(l, r) {
+        if (l < r) {
+            let pi = await partition(l, r);
+            await sortRecursive(l, pi - 1);
+            await sortRecursive(pi + 1, r);
+        } else if (l === r) {
+            document.getElementsByClassName('bar')[l].classList.add('done');
         }
+    }
 
-        // 交換陣列元素與畫面高度的函數
-        async function swap(bars, i, j) {
-            let temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
-
-            bars[i].style.height = `${array[i] * 2}px`;
-            bars[i].textContent = array[i];
-            bars[j].style.height = `${array[j] * 2}px`;
-            bars[j].textContent = array[j];
-            await sleep(ANIMATION_SPEED);
-        }
-
-        // 分流核心邏輯
-        async function partition(bars, low, high) {
-            let pivot = array[high]; // 選擇最右邊作為基準點
-            bars[high].classList.add('pivot');
-            statusText.textContent = `選擇區間最右側的 ${pivot} 作為基準點 (Pivot)`;
-            await sleep(ANIMATION_SPEED);
-
-            let i = low - 1; // i 負責記錄「小於 pivot 的區域」的尾巴
-
-            for (let j = low; j <= high - 1; j++) {
-                bars[j].classList.add('comparing');
-                statusText.textContent = `檢查 ${array[j]} 是否小於基準點 ${pivot}`;
-                await sleep(ANIMATION_SPEED * 0.8);
-
-                if (array[j] < pivot) {
-                    i++;
-                    statusText.textContent = `${array[j]} < ${pivot}，將其交換到左側區域`;
-                    bars[i].classList.add('swapping');
-                    bars[j].classList.add('swapping');
-                    
-                    await swap(bars, i, j);
-                    
-                    bars[i].classList.remove('swapping');
-                    bars[j].classList.remove('swapping');
-                } else {
-                    statusText.textContent = `${array[j]} >= ${pivot}，留在右側`;
-                    await sleep(ANIMATION_SPEED * 0.5);
-                }
-                bars[j].classList.remove('comparing');
-            }
-
-            // 最後把基準點換到正確的分割位置 (i + 1)
-            statusText.textContent = `分流結束！將基準點 ${pivot} 放到正確位置`;
-            bars[i + 1].classList.add('swapping');
-            bars[high].classList.add('swapping');
-            
-            await swap(bars, i + 1, high);
-            
-            bars[i + 1].classList.remove('swapping');
-            bars[high].classList.remove('swapping');
-            bars[high].classList.remove('pivot');
-
-            // 基準點就位，標示為綠色
-            bars[i + 1].classList.add('sorted');
-            statusText.textContent = `基準點 ${pivot} 已固定位置。`;
-            await sleep(ANIMATION_SPEED);
-
-            return i + 1;
-        }
-
-        // 快速排序遞迴
-        async function quickSortHelper(bars, low, high) {
-            if (low < high) {
-                let pi = await partition(bars, low, high);
-
-                // 遞迴排序基準點左邊和右邊的區間
-                await quickSortHelper(bars, low, pi - 1);
-                await quickSortHelper(bars, pi + 1, high);
-            } else if (low === high) {
-                // 如果區間只有一個元素，代表它也排序好了
-                bars[low].classList.add('sorted');
-            }
-        }
-
-        async function startQuickSort() {
-            btnGenerate.disabled = true;
-            btnSort.disabled = true;
-            
-            const bars = document.querySelectorAll('.bar');
-            await quickSortHelper(bars, 0, array.length - 1);
-            
-            statusText.textContent = '🎉 排序完成！';
-            btnGenerate.disabled = false;
-        }
-
-        btnGenerate.addEventListener('click', generateArray);
-        btnSort.addEventListener('click', startQuickSort);
-        window.onload = generateArray;
-    </script>
-</body>
-</html>
+    async function sort() {
+        await sortRecursive(0, size - 1);
+    }
+</script>
