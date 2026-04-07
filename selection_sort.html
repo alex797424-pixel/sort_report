@@ -1,95 +1,40 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>選擇排序模擬</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: white; }
-        /* 這裡是顯示長條圖的區域 */
-        #container { 
-            display: flex; 
-            align-items: flex-end; 
-            justify-content: center; 
-            height: 300px; 
-            gap: 5px; 
-            margin: 20px auto;
-            padding: 20px;
-            background: #f4f4f4;
-            border-radius: 10px;
-            max-width: 800px;
-        }
-        .bar { 
-            width: 30px; 
-            background: #3498db; 
-            transition: height 0.2s; 
-        }
-        .active { background: #e74c3c !important; } /* 當前選取的紅色 */
-        .done { background: #2ecc71 !important; }   /* 完成排序的綠色 */
-        button { padding: 10px 20px; cursor: pointer; font-size: 16px; border-radius: 5px; border: 1px solid #ddd; }
+        body { font-family: sans-serif; text-align: center; }
+        .canvas { display: flex; align-items: flex-end; justify-content: center; height: 200px; gap: 4px; background: #2c3e50; padding: 20px; border-radius: 8px; }
+        .bar { background: #3498db; width: 20px; transition: 0.2s; }
+        .active { background: #e74c3c !important; }
+        .done { background: #2ecc71 !important; }
     </style>
 </head>
 <body>
-
-    <h2>🎯 選擇排序 (Selection Sort) 模擬</h2>
-    <div id="container"></div>
-
-    <div>
-        <button onclick="init()">產生隨機數據</button>
-        <button onclick="sort()">開始排序</button>
-    </div>
-
+    <h3>🎯 選擇排序 (Selection Sort)</h3>
+    <div class="canvas" id="canvas"></div>
+    <p><button onclick="init()">重置</button> <button onclick="sort()">開始排序</button></p>
     <script>
-        const container = document.getElementById('container');
-        let arr = [];
-        const size = 15; // 長條圖數量
-
-        // 初始化：產生隨機數列並畫出長條圖
+        let arr = []; const size = 20;
         function init() {
-            arr = [];
-            container.innerHTML = '';
-            for (let i = 0; i < size; i++) {
-                let val = Math.floor(Math.random() * 250) + 20;
-                arr.push(val);
-                const bar = document.createElement('div');
-                bar.classList.add('bar');
-                bar.style.height = val + 'px';
-                container.appendChild(bar);
-            }
+            arr = Array.from({length: size}, () => Math.floor(Math.random() * 150) + 20);
+            const c = document.getElementById('canvas'); c.innerHTML = '';
+            arr.forEach(v => {
+                const b = document.createElement('div'); b.className = 'bar';
+                b.style.height = v + 'px'; c.appendChild(b);
+            });
         }
-
-        // 你的選擇排序邏輯修正版
         async function sort() {
             let bars = document.getElementsByClassName('bar');
-            
-            for(let i = 0; i < size; i++) {
-                let min = i;
-                // 標記目前正在找最小值的起點
-                bars[i].classList.add('active');
-                
-                for(let j = i + 1; j < size; j++) {
-                    // 這裡可以視需求加入視覺動畫效果
-                    if(arr[j] < arr[min]) {
-                        min = j;
-                    }
-                }
-
-                // 等待 200 毫秒，讓肉眼跟得上動畫
-                await new Promise(r => setTimeout(r, 200));
-
-                // 數值交換
+            for(let i=0; i<size; i++) {
+                let min = i; bars[i].classList.add('active');
+                for(let j=i+1; j<size; j++) { if(arr[j] < arr[min]) min = j; }
+                await new Promise(r => setTimeout(r, 100));
                 [arr[i], arr[min]] = [arr[min], arr[i]];
-
-                // 視覺同步高度
-                bars[i].style.height = arr[i] + 'px';
-                bars[min].style.height = arr[min] + 'px';
-
-                // 標記排序完成
-                bars[i].classList.remove('active');
-                bars[i].classList.add('done');
+                bars[i].style.height = arr[i] + 'px'; bars[min].style.height = arr[min] + 'px';
+                bars[i].classList.remove('active'); bars[i].classList.add('done');
             }
         }
-
-        // 網頁開啟時先執行一次
         init();
     </script>
 </body>
